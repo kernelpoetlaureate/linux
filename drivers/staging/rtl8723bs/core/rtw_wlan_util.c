@@ -364,7 +364,7 @@ u16 get_beacon_interval(struct wlan_bssid_ex *bss)
 {
 	__le16 val;
 
-	memcpy((unsigned char *)&val, rtw_get_beacon_interval_from_ie(bss->ies), 2);
+	memcpy(&val, rtw_get_beacon_interval_from_ie(bss->ies), 2);
 
 	return le16_to_cpu(val);
 }
@@ -676,7 +676,7 @@ void flush_all_cam_entry(struct adapter *padapter)
 	/* clear default key related key search setting */
 	rtw_hal_set_hwreg(padapter, HW_VAR_SEC_DK_CFG, (u8 *)false);
 
-	memset((u8 *)(pmlmeinfo->FW_sta_info), 0, sizeof(pmlmeinfo->FW_sta_info));
+	memset(pmlmeinfo->FW_sta_info, 0, sizeof(pmlmeinfo->FW_sta_info));
 }
 
 int WMM_param_handler(struct adapter *padapter, struct ndis_80211_var_ie *pIE)
