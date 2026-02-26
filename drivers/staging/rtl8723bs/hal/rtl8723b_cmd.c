@@ -78,7 +78,7 @@ s32 FillH2CCmd8723B(struct adapter *padapter, u8 ElementID, u32 CmdLen, u8 *pCmd
 			memcpy((u8 *)(&h2c_cmd)+1, pCmdBuffer, CmdLen);
 		else {
 			memcpy((u8 *)(&h2c_cmd)+1, pCmdBuffer, 3);
-			memcpy((u8 *)(&h2c_cmd_ex), pCmdBuffer+3, CmdLen-3);
+			memcpy(&h2c_cmd_ex, pCmdBuffer + 3, CmdLen - 3);
 /* 			*(u8 *)(&h2c_cmd) |= BIT(7); */
 		}
 
@@ -133,13 +133,13 @@ static void ConstructBeacon(struct adapter *padapter, u8 *pframe, u32 *pLength)
 	pktlen += 8;
 
 	/*  beacon interval: 2 bytes */
-	memcpy(pframe, (unsigned char *)(rtw_get_beacon_interval_from_ie(cur_network->ies)), 2);
+	memcpy(pframe, rtw_get_beacon_interval_from_ie(cur_network->ies), 2);
 
 	pframe += 2;
 	pktlen += 2;
 
 	/*  capability info: 2 bytes */
-	memcpy(pframe, (unsigned char *)(rtw_get_capability_from_ie(cur_network->ies)), 2);
+	memcpy(pframe, rtw_get_capability_from_ie(cur_network->ies), 2);
 
 	pframe += 2;
 	pktlen += 2;
