@@ -109,7 +109,7 @@ int rtw_check_network_type(unsigned char *rate, int ratelen, int channel)
 u8 *rtw_set_fixed_ie(unsigned char *pbuf, unsigned int len, unsigned char *source,
 				unsigned int *frlen)
 {
-	memcpy((void *)pbuf, (void *)source, len);
+	memcpy(pbuf, source, len);
 	*frlen = *frlen + len;
 	return pbuf + len;
 }
@@ -126,7 +126,7 @@ u8 *rtw_set_ie(u8 *pbuf,
 	*(pbuf + 1) = (u8)len;
 
 	if (len > 0)
-		memcpy((void *)(pbuf + 2), (void *)source, len);
+		memcpy(pbuf + 2, source, len);
 
 	*frlen = *frlen + (len + 2);
 
@@ -371,7 +371,7 @@ unsigned char *rtw_get_wpa_ie(unsigned char *pie, int *wpa_ie_len, int limit)
 				goto check_next_ie;
 
 			/* check version... */
-			memcpy((u8 *)&le_tmp, (pbuf + 6), sizeof(val16));
+			memcpy(&le_tmp, (pbuf + 6), sizeof(val16));
 
 			val16 = le16_to_cpu(le_tmp);
 			if (val16 != 0x0001)
@@ -1044,7 +1044,7 @@ void rtw_get_bcn_info(struct wlan_network *pnetwork)
 	unsigned char *p;
 	__le16 le_cap;
 
-	memcpy((u8 *)&le_cap, rtw_get_capability_from_ie(pnetwork->network.ies), 2);
+	memcpy(&le_cap, rtw_get_capability_from_ie(pnetwork->network.ies), 2);
 	cap = le16_to_cpu(le_cap);
 	if (cap & WLAN_CAPABILITY_PRIVACY) {
 		bencrypt = 1;
