@@ -93,9 +93,8 @@ static struct ieee80211_channel rtw_2ghz_channels[] = {
 
 static void rtw_2g_channels_init(struct ieee80211_channel *channels)
 {
-	memcpy((void *)channels, (void *)rtw_2ghz_channels,
-	       sizeof(struct ieee80211_channel) * RTW_2G_CHANNELS_NUM
-	);
+	memcpy(channels, rtw_2ghz_channels,
+	       sizeof(struct ieee80211_channel) * RTW_2G_CHANNELS_NUM);
 }
 
 static void rtw_2g_rates_init(struct ieee80211_rate *rates)
@@ -884,18 +883,18 @@ static int cfg80211_rtw_add_key(struct wiphy *wiphy, struct net_device *ndev,
 	param->u.crypt.idx = key_index;
 
 	if (params->seq_len && params->seq)
-		memcpy(param->u.crypt.seq, (u8 *)params->seq, params->seq_len);
+		memcpy(param->u.crypt.seq, params->seq, params->seq_len);
 
 	if (params->key_len && params->key) {
 		param->u.crypt.key_len = params->key_len;
-		memcpy(param->u.crypt.key, (u8 *)params->key, params->key_len);
+		memcpy(param->u.crypt.key, params->key, params->key_len);
 	}
 
 	if (check_fwstate(pmlmepriv, WIFI_STATION_STATE) == true) {
 		ret =  rtw_cfg80211_set_encryption(ndev, param, param_len);
 	} else if (check_fwstate(pmlmepriv, WIFI_AP_STATE) == true) {
 		if (mac_addr)
-			memcpy(param->sta_addr, (void *)mac_addr, ETH_ALEN);
+			memcpy(param->sta_addr, mac_addr, ETH_ALEN);
 
 		ret = rtw_cfg80211_ap_set_encryption(ndev, param, param_len);
 	} else if (check_fwstate(pmlmepriv, WIFI_ADHOC_STATE) == true
@@ -988,7 +987,7 @@ static int cfg80211_rtw_get_station(struct wiphy *wiphy,
 		&& check_fwstate(pmlmepriv, _FW_LINKED)) {
 		struct wlan_network  *cur_network = &(pmlmepriv->cur_network);
 
-		if (memcmp((u8 *)mac, cur_network->network.mac_address, ETH_ALEN)) {
+		if (memcmp(mac, cur_network->network.mac_address, ETH_ALEN)) {
 			ret = -ENOENT;
 			goto exit;
 		}
@@ -1573,7 +1572,7 @@ static int cfg80211_rtw_join_ibss(struct wiphy *wiphy, struct net_device *ndev,
 
 	memset(&ndis_ssid, 0, sizeof(struct ndis_802_11_ssid));
 	ndis_ssid.ssid_length = params->ssid_len;
-	memcpy(ndis_ssid.ssid, (u8 *)params->ssid, params->ssid_len);
+	memcpy(ndis_ssid.ssid, params->ssid, params->ssid_len);
 
 	psecuritypriv->ndisencryptstatus = Ndis802_11EncryptionDisabled;
 	psecuritypriv->dot11PrivacyAlgrthm = _NO_PRIVACY_;
@@ -1662,7 +1661,7 @@ static int cfg80211_rtw_connect(struct wiphy *wiphy, struct net_device *ndev,
 
 	memset(&ndis_ssid, 0, sizeof(struct ndis_802_11_ssid));
 	ndis_ssid.ssid_length = sme->ssid_len;
-	memcpy(ndis_ssid.ssid, (u8 *)sme->ssid, sme->ssid_len);
+	memcpy(ndis_ssid.ssid, sme->ssid, sme->ssid_len);
 
 	if (check_fwstate(pmlmepriv, _FW_UNDER_LINKING) == true) {
 		ret = -EBUSY;
@@ -1735,7 +1734,7 @@ static int cfg80211_rtw_connect(struct wiphy *wiphy, struct net_device *ndev,
 		pwep->key_index = wep_key_idx;
 		pwep->key_index |= 0x80000000;
 
-		memcpy(pwep->key_material,  (void *)sme->key, pwep->key_length);
+		memcpy(pwep->key_material, sme->key, pwep->key_length);
 
 		if (rtw_set_802_11_add_wep(padapter, pwep) == (u8)_FAIL)
 			ret = -EOPNOTSUPP;
@@ -1848,8 +1847,9 @@ static int cfg80211_rtw_set_pmksa(struct wiphy *wiphy,
 
 	/* overwrite PMKID */
 	for (index = 0 ; index < NUM_PMKID_CACHE; index++) {
-		if (!memcmp(psecuritypriv->PMKIDList[index].Bssid, (u8 *)pmksa->bssid, ETH_ALEN)) {
-			memcpy(psecuritypriv->PMKIDList[index].PMKID, (u8 *)pmksa->pmkid, WLAN_PMKID_LEN);
+		if (!memcmp(psecuritypriv->PMKIDList[index].Bssid, pmksa->bssid, ETH_ALEN)) {
+			memcpy(psecuritypriv->PMKIDList[index].PMKID,
+			       pmksa->pmkid, WLAN_PMKID_LEN);
 			psecuritypriv->PMKIDList[index].bUsed = true;
 			psecuritypriv->PMKIDIndex = index + 1;
 			blInserted = true;
@@ -1858,8 +1858,10 @@ static int cfg80211_rtw_set_pmksa(struct wiphy *wiphy,
 	}
 
 	if (!blInserted) {
-		memcpy(psecuritypriv->PMKIDList[psecuritypriv->PMKIDIndex].Bssid, (u8 *)pmksa->bssid, ETH_ALEN);
-		memcpy(psecuritypriv->PMKIDList[psecuritypriv->PMKIDIndex].PMKID, (u8 *)pmksa->pmkid, WLAN_PMKID_LEN);
+		memcpy(psecuritypriv->PMKIDList[psecuritypriv->PMKIDIndex].Bssid,
+		       pmksa->bssid, ETH_ALEN);
+		memcpy(psecuritypriv->PMKIDList[psecuritypriv->PMKIDIndex].PMKID,
+		       pmksa->pmkid, WLAN_PMKID_LEN);
 
 		psecuritypriv->PMKIDList[psecuritypriv->PMKIDIndex].bUsed = true;
 		psecuritypriv->PMKIDIndex++;
@@ -1879,7 +1881,7 @@ static int cfg80211_rtw_del_pmksa(struct wiphy *wiphy,
 	struct security_priv *psecuritypriv = &padapter->securitypriv;
 
 	for (index = 0 ; index < NUM_PMKID_CACHE; index++) {
-		if (!memcmp(psecuritypriv->PMKIDList[index].Bssid, (u8 *)pmksa->bssid, ETH_ALEN)) {
+		if (!memcmp(psecuritypriv->PMKIDList[index].Bssid, pmksa->bssid, ETH_ALEN)) {
 			/*
 			 * BSSID is matched, the same AP => Remove this PMKID information
 			 * and reset it.
@@ -2084,7 +2086,7 @@ static netdev_tx_t rtw_cfg80211_monitor_if_xmit_entry(struct sk_buff *skb, struc
 
 		pframe = (u8 *)(pmgntframe->buf_addr) + TXDESC_OFFSET;
 
-		memcpy(pframe, (void *)buf, len);
+		memcpy(pframe, buf, len);
 		pattrib->pktlen = len;
 
 		pwlanhdr = (struct ieee80211_hdr *)pframe;
@@ -2260,7 +2262,7 @@ static int rtw_add_beacon(struct adapter *adapter, const u8 *head, size_t head_l
 		return -ENOMEM;
 
 	memcpy(pbuf, (void *)head + 24, head_len - 24);/*  24 =beacon header len. */
-	memcpy(pbuf + head_len - 24, (void *)tail, tail_len);
+	memcpy(pbuf + head_len - 24, tail, tail_len);
 
 	len = head_len + tail_len - 24;
 
@@ -2297,9 +2299,11 @@ static int cfg80211_rtw_start_ap(struct wiphy *wiphy, struct net_device *ndev,
 		struct wlan_bssid_ex *pbss_network = &adapter->mlmepriv.cur_network.network;
 		struct wlan_bssid_ex *pbss_network_ext = &adapter->mlmeextpriv.mlmext_info.network;
 
-		memcpy(pbss_network->ssid.ssid, (void *)settings->ssid, settings->ssid_len);
+		memcpy(pbss_network->ssid.ssid, settings->ssid,
+		       settings->ssid_len);
 		pbss_network->ssid.ssid_length = settings->ssid_len;
-		memcpy(pbss_network_ext->ssid.ssid, (void *)settings->ssid, settings->ssid_len);
+		memcpy(pbss_network_ext->ssid.ssid, settings->ssid,
+		       settings->ssid_len);
 		pbss_network_ext->ssid.ssid_length = settings->ssid_len;
 	}
 
@@ -2366,7 +2370,7 @@ static int cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev
 	list_for_each_safe(plist, tmp, phead) {
 		psta = list_entry(plist, struct sta_info, asoc_list);
 
-		if (!memcmp((u8 *)mac, psta->hwaddr, ETH_ALEN)) {
+		if (!memcmp(mac, psta->hwaddr, ETH_ALEN)) {
 			if (psta->dot8021xalg != 1 || psta->bpairwise_key_installed) {
 				list_del_init(&psta->asoc_list);
 				pstapriv->asoc_list_cnt--;
@@ -2492,7 +2496,7 @@ static int _cfg80211_rtw_mgmt_tx(struct adapter *padapter, u8 tx_ch, const u8 *b
 
 	pframe = (u8 *)(pmgntframe->buf_addr) + TXDESC_OFFSET;
 
-	memcpy(pframe, (void *)buf, len);
+	memcpy(pframe, buf, len);
 	pattrib->pktlen = len;
 
 	pwlanhdr = (struct ieee80211_hdr *)pframe;
