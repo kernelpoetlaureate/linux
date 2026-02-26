@@ -525,7 +525,7 @@ unsigned int OnProbeReq(struct adapter *padapter, union recv_frame *precv_frame)
 		if (is_valid_p2p_probereq)
 			goto _issue_probersp;
 
-		if ((ielen != 0 && false == !memcmp((void *)(p+2), (void *)cur->ssid.ssid, cur->ssid.ssid_length))
+		if ((ielen != 0 && false == !memcmp(p + 2, cur->ssid.ssid, cur->ssid.ssid_length))
 			|| (ielen == 0 && pmlmeinfo->hidden_ssid_mode)
 		)
 			return _SUCCESS;
@@ -791,7 +791,7 @@ unsigned int OnAuth(struct adapter *padapter, union recv_frame *precv_frame)
 	} else { /*  shared system or auto authentication */
 		if (seq == 1) {
 			/* prepare for the challenging txt... */
-			memset((void *)pstat->chg_txt, 78, 128);
+			memset(pstat->chg_txt, 78, 128);
 
 			pstat->state &= ~WIFI_FW_AUTH_NULL;
 			pstat->state |= WIFI_FW_AUTH_STATE;
@@ -806,7 +806,7 @@ unsigned int OnAuth(struct adapter *padapter, union recv_frame *precv_frame)
 				goto auth_fail;
 			}
 
-			if (!memcmp((void *)(p + 2), pstat->chg_txt, 128)) {
+			if (!memcmp(p + 2, pstat->chg_txt, 128)) {
 				pstat->state &= (~WIFI_FW_AUTH_STATE);
 				pstat->state |= WIFI_FW_AUTH_SUCCESS;
 				/*  challenging txt is correct... */
@@ -839,7 +839,7 @@ auth_fail:
 		rtw_free_stainfo(padapter, pstat);
 
 	pstat = &stat;
-	memset((char *)pstat, '\0', sizeof(stat));
+	memset(pstat, '\0', sizeof(stat));
 	pstat->auth_seq = 2;
 	memcpy(pstat->hwaddr, sa, 6);
 
@@ -893,7 +893,7 @@ unsigned int OnAuthClient(struct adapter *padapter, union recv_frame *precv_fram
 			if (!p)
 				goto authclnt_fail;
 
-			memcpy((void *)(pmlmeinfo->chg_txt), (void *)(p + 2), len);
+			memcpy(pmlmeinfo->chg_txt, p + 2, len);
 			pmlmeinfo->auth_seq = 3;
 			issue_auth(padapter, NULL, 0);
 			set_link_timer(pmlmeext, REAUTH_TO);
@@ -1007,7 +1007,7 @@ unsigned int OnAssocReq(struct adapter *padapter, union recv_frame *precv_frame)
 		goto OnAssocReqFail;
 	} else {
 		/*  check if ssid match */
-		if (memcmp((void *)(p+2), cur->ssid.ssid, cur->ssid.ssid_length))
+		if (memcmp(p + 2, cur->ssid.ssid, cur->ssid.ssid_length))
 			status = WLAN_STATUS_CHALLENGE_FAIL;
 
 		if (ie_len != cur->ssid.ssid_length)
@@ -2167,14 +2167,14 @@ void issue_beacon(struct adapter *padapter, int timeout_ms)
 
 	/*  beacon interval: 2 bytes */
 
-	memcpy(pframe, (unsigned char *)(rtw_get_beacon_interval_from_ie(cur_network->ies)), 2);
+	memcpy(pframe, rtw_get_beacon_interval_from_ie(cur_network->ies), 2);
 
 	pframe += 2;
 	pattrib->pktlen += 2;
 
 	/*  capability info: 2 bytes */
 
-	memcpy(pframe, (unsigned char *)(rtw_get_capability_from_ie(cur_network->ies)), 2);
+	memcpy(pframe, rtw_get_capability_from_ie(cur_network->ies), 2);
 
 	pframe += 2;
 	pattrib->pktlen += 2;
@@ -2367,14 +2367,16 @@ void issue_probersp(struct adapter *padapter, unsigned char *da, u8 is_valid_p2p
 
 		/*  beacon interval: 2 bytes */
 
-		memcpy(pframe, (unsigned char *)(rtw_get_beacon_interval_from_ie(cur_network->ies)), 2);
+		memcpy(pframe,
+		       (rtw_get_beacon_interval_from_ie(cur_network->ies)), 2);
 
 		pframe += 2;
 		pattrib->pktlen += 2;
 
 		/*  capability info: 2 bytes */
 
-		memcpy(pframe, (unsigned char *)(rtw_get_capability_from_ie(cur_network->ies)), 2);
+		memcpy(pframe, rtw_get_capability_from_ie(cur_network->ies),
+		       2);
 
 		pframe += 2;
 		pattrib->pktlen += 2;
@@ -2715,9 +2717,10 @@ void issue_asocrsp(struct adapter *padapter, unsigned short status, struct sta_i
 	fctrl = &(pwlanhdr->frame_control);
 	*(fctrl) = 0;
 
-	memcpy((void *)GetAddr1Ptr(pwlanhdr), pstat->hwaddr, ETH_ALEN);
-	memcpy((void *)GetAddr2Ptr(pwlanhdr), myid(&(padapter->eeprompriv)), ETH_ALEN);
-	memcpy((void *)GetAddr3Ptr(pwlanhdr), get_my_bssid(&(pmlmeinfo->network)), ETH_ALEN);
+	memcpy(GetAddr1Ptr(pwlanhdr), pstat->hwaddr, ETH_ALEN);
+	memcpy(GetAddr2Ptr(pwlanhdr), myid(&(padapter->eeprompriv)), ETH_ALEN);
+	memcpy(GetAddr3Ptr(pwlanhdr), get_my_bssid(&(pmlmeinfo->network)),
+	       ETH_ALEN);
 
 
 	SetSeqNum(pwlanhdr, pmlmeext->mgnt_seq);
@@ -2863,7 +2866,7 @@ void issue_assocreq(struct adapter *padapter)
 	/* listen interval */
 	/* todo: listen interval for power saving */
 	val16 = cpu_to_le16(3);
-	memcpy(pframe, (unsigned char *)&val16, 2);
+	memcpy(pframe, &val16, 2);
 	pframe += 2;
 	pattrib->pktlen += 2;
 
@@ -4500,7 +4503,8 @@ void report_join_res(struct adapter *padapter, int res)
 	pc2h_evt_hdr->seq = atomic_inc_return(&pmlmeext->event_seq);
 
 	pjoinbss_evt = (struct joinbss_event *)(pevtcmd + sizeof(struct C2HEvent_Header));
-	memcpy((unsigned char *)(&(pjoinbss_evt->network.network)), &(pmlmeinfo->network), sizeof(struct wlan_bssid_ex));
+	memcpy(&pjoinbss_evt->network.network, &(pmlmeinfo->network),
+	       sizeof(struct wlan_bssid_ex));
 	pjoinbss_evt->network.join_res	= pjoinbss_evt->network.aid = res;
 
 
@@ -4595,8 +4599,8 @@ void report_del_sta_event(struct adapter *padapter, unsigned char *MacAddr, unsi
 	pc2h_evt_hdr->seq = atomic_inc_return(&pmlmeext->event_seq);
 
 	pdel_sta_evt = (struct stadel_event *)(pevtcmd + sizeof(struct C2HEvent_Header));
-	memcpy((unsigned char *)(&(pdel_sta_evt->macaddr)), MacAddr, ETH_ALEN);
-	memcpy((unsigned char *)(pdel_sta_evt->rsvd), (unsigned char *)(&reason), 2);
+	memcpy(&pdel_sta_evt->macaddr, MacAddr, ETH_ALEN);
+	memcpy(pdel_sta_evt->rsvd, &reason, 2);
 
 
 	psta = rtw_get_stainfo(&padapter->stapriv, MacAddr);
@@ -4646,7 +4650,7 @@ void report_add_sta_event(struct adapter *padapter, unsigned char *MacAddr, int 
 	pc2h_evt_hdr->seq = atomic_inc_return(&pmlmeext->event_seq);
 
 	padd_sta_evt = (struct stassoc_event *)(pevtcmd + sizeof(struct C2HEvent_Header));
-	memcpy((unsigned char *)(&(padd_sta_evt->macaddr)), MacAddr, ETH_ALEN);
+	memcpy(&padd_sta_evt->macaddr, MacAddr, ETH_ALEN);
 	padd_sta_evt->cam_id = cam_idx;
 
 	rtw_enqueue_cmd(pcmdpriv, pcmd_obj);
