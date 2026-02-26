@@ -296,7 +296,7 @@ u16 rtw_get_capability(struct wlan_bssid_ex *bss)
 {
 	__le16	val;
 
-	memcpy((u8 *)&val, rtw_get_capability_from_ie(bss->ies), 2);
+	memcpy(&val, rtw_get_capability_from_ie(bss->ies), 2);
 
 	return le16_to_cpu(val);
 }
@@ -361,8 +361,8 @@ int is_same_network(struct wlan_bssid_ex *src, struct wlan_bssid_ex *dst, u8 fea
 	if (rtw_bug_check(dst, src, &s_cap, &d_cap) == false)
 		return false;
 
-	memcpy((u8 *)&tmps, rtw_get_capability_from_ie(src->ies), 2);
-	memcpy((u8 *)&tmpd, rtw_get_capability_from_ie(dst->ies), 2);
+	memcpy(&tmps, rtw_get_capability_from_ie(src->ies), 2);
+	memcpy(&tmpd, rtw_get_capability_from_ie(dst->ies), 2);
 
 	s_cap = le16_to_cpu(tmps);
 	d_cap = le16_to_cpu(tmpd);
@@ -452,7 +452,7 @@ void update_network(struct wlan_bssid_ex *dst, struct wlan_bssid_ex *src,
 	if (update_ie) {
 		dst->reserved[0] = src->reserved[0];
 		dst->reserved[1] = src->reserved[1];
-		memcpy((u8 *)dst, (u8 *)src, get_wlan_bssid_ex_sz(src));
+		memcpy(dst, src, get_wlan_bssid_ex_sz(src));
 	}
 
 	dst->phy_info.signal_strength = ss_final;
@@ -995,15 +995,18 @@ static struct sta_info *rtw_joinbss_update_stainfo(struct adapter *padapter, str
 			psta->ieee8021x_blocked = true;
 			psta->dot118021XPrivacy = padapter->securitypriv.dot11PrivacyAlgrthm;
 
-			memset((u8 *)&psta->dot118021x_UncstKey, 0, sizeof(union Keytype));
+			memset(&psta->dot118021x_UncstKey, 0,
+			       sizeof(union Keytype));
 
-			memset((u8 *)&psta->dot11tkiprxmickey, 0, sizeof(union Keytype));
-			memset((u8 *)&psta->dot11tkiptxmickey, 0, sizeof(union Keytype));
+			memset(&psta->dot11tkiprxmickey, 0,
+			       sizeof(union Keytype));
+			memset(&psta->dot11tkiptxmickey, 0,
+			       sizeof(union Keytype));
 
-			memset((u8 *)&psta->dot11txpn, 0, sizeof(union pn48));
+			memset(&psta->dot11txpn, 0, sizeof(union pn48));
 			psta->dot11txpn.val = psta->dot11txpn.val + 1;
-			memset((u8 *)&psta->dot11wtxpn, 0, sizeof(union pn48));
-			memset((u8 *)&psta->dot11rxpn, 0, sizeof(union pn48));
+			memset(&psta->dot11wtxpn, 0, sizeof(union pn48));
+			memset(&psta->dot11rxpn, 0, sizeof(union pn48));
 		}
 
 		/* When doing the WPS, the wps_ie_len won't equal to 0 */
@@ -1114,7 +1117,8 @@ void rtw_reset_securitypriv(struct adapter *adapter)
 		/* reset RX BIP packet number */
 		pmlmeext->mgnt_80211w_IPN_rx = 0;
 
-		memset((unsigned char *)&adapter->securitypriv, 0, sizeof(struct security_priv));
+		memset(&adapter->securitypriv, 0,
+		       sizeof(struct security_priv));
 
 		/*  Added by Albert 2009/02/18 */
 		/*  Restore the PMK information to securitypriv structure for the following connection. */
