@@ -19,7 +19,7 @@ static void _init_txservq(struct tx_servq *ptxservq)
 
 void _rtw_init_sta_xmit_priv(struct sta_xmit_priv *psta_xmitpriv)
 {
-	memset((unsigned char *)psta_xmitpriv, 0, sizeof(struct sta_xmit_priv));
+	memset(psta_xmitpriv, 0, sizeof(struct sta_xmit_priv));
 
 	spin_lock_init(&psta_xmitpriv->lock);
 
