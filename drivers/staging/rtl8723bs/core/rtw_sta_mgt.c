@@ -9,7 +9,7 @@
 void _rtw_init_stainfo(struct sta_info *psta);
 void _rtw_init_stainfo(struct sta_info *psta)
 {
-	memset((u8 *)psta, 0, sizeof(struct sta_info));
+	memset(psta, 0, sizeof(struct sta_info));
 
 	spin_lock_init(&psta->lock);
 	INIT_LIST_HEAD(&psta->list);
