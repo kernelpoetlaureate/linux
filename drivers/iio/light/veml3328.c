@@ -228,7 +228,7 @@ static int veml3328_read_avail(struct iio_dev *indio_dev,
 			return -EINVAL;
 
 		*length = 8;
-		*vals = (const int *)veml3328_scale_vals[it_inx];
+		*vals = veml3328_scale_vals[it_inx];
 		*type = IIO_VAL_INT_PLUS_MICRO;
 		return IIO_AVAIL_LIST;
 	}
